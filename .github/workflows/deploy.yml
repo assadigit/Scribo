@@ -1,0 +1,52 @@
+name: Deploy to Cloudflare
+
+# Deploys scribo.ir automatically on every push to main.
+# A failed run changes nothing on the live site (Cloudflare keeps the
+# previous version until a successful deploy completes).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # allows manual runs from the Actions tab
+
+concurrency:
+  group: deploy-scribo
+  cancel-in-progress: false # never kill a running deploy; queue instead
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies (from lock file)
+        run: npm ci
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Build the site (Next.js)
+        run: npm run build
+
+      - name: Build the worker (OpenNext for Cloudflare)
+        run: npm run build:worker
+
+      - name: "Apply D1 migrations (database: feather)"
+        run: npx wrangler d1 migrations apply feather --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy

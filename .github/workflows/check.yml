@@ -1,0 +1,38 @@
+name: Check (no deploy)
+
+# Safety net: install + type-check + build on every pull request and on
+# every branch except main. Never deploys anything.
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies (from lock file)
+        run: npm ci
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Build the site (Next.js)
+        run: npm run build
+
+      - name: Build the worker (OpenNext for Cloudflare)
+        run: npm run build:worker
