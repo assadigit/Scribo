@@ -1,0 +1,1286 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Self-hosted Vazirmatn — explicit @font-face so Farsi never falls back to a
+   system font (e.g. Arial/Segoe UI). Variable font: one file per subset covers
+   weights 100–900. The family name matches what --font-vazirmatn references. */
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazirmatn-arabic-wght-normal.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazirmatn-latin-ext-wght-normal.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/vazirmatn-latin-wght-normal.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Typewriter faces — the default writing-surface font. Farsi notes typeset
+   in the Persian typewriter face (ماشین تحریر, 3 faces: regular/bold/italic);
+   English notes in Special Elite. Both are self-hosted TTFs; the per-direction
+   rules below load them lazily (font-display: swap, only when an editor with
+   that direction is on screen). */
+@font-face {
+  font-family: "MashinTahrir";
+  src: url("/fonts/fa/mashintahrir.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "MashinTahrir";
+  src: url("/fonts/fa/mashintahrirbd.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "MashinTahrir";
+  src: url("/fonts/fa/mashintahriritalic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Special Elite";
+  src: url("/fonts/en/SpecialElite.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-vazirmatn: "Vazirmatn", "Vazirmatn Fallback";
+  /* “Analog Dispatch” — the app UI (reader, editor, admin) is built on
+     cream telegraph paper: typed content in ink, kraft-tape tags and rubber
+     stamps for status, pencil for margin annotations. The landing page owns
+     its own ink-and-invitation system via the `.landing` scope below. */
+  --paper: #f2ead8;
+  --paper-raised: #ede3cc;
+  --crease: rgb(33 30 26 / 0.07);
+  --hairline: rgb(33 30 26 / 0.16);
+  --ink: #211e1a;
+  --ink-soft: #55504a;
+  --pencil: #8c8579;
+  --stamp-red: #a33b2c;
+  --tape: #deca8a;
+  --tape-ink: #5c4a1f;
+  --font-type: var(--font-courier-prime), "Courier New", monospace;
+  --font-stamp: "Special Elite", var(--font-courier-prime), monospace;
+  --font-hand: var(--font-kalam), cursive;
+
+  /* Semantic mappings — every app surface flows from the paper palette. */
+  --background: var(--paper);
+  --surface: var(--paper-raised);
+  --surface-muted: #e7dcc2;
+  --foreground: var(--ink);
+  --muted: var(--ink-soft);
+  --border-subtle: var(--hairline);
+  --accent: var(--ink);
+  --accent-foreground: var(--paper);
+  /* Destructive actions share the stamp-ink red — dark and desaturated, not
+     a warm terracotta. */
+  --danger: var(--stamp-red);
+  --seal: #7a2430;
+  --ambient: radial-gradient(circle at 50% 0%, rgb(33 30 26 / 0.05), transparent 60%);
+  /* Notebook ruled-lines backdrop (editor); intentionally soft, but clearly
+     visible so each text line visibly sits on a rule. */
+  --line-rule: rgb(33 30 26 / 0.12);
+}
+
+.dark {
+  /* “Night Dispatch” — the same cream telegraph-paper system, at night.
+     Not a neutral gray: the ground keeps the cream paper's hue (~42°)
+     pushed down to a soft umber (#2d2921 body, #36312a raised sheets) and
+     ink inverts to warm cream (#e9e0cb). Muted text stays a warm tan,
+     accents shift to brick-and-kraft so stamps/tags keep their paper
+     presence. Contrast is AAA for ink, AA for muted and stamp ink; the
+     raised sheets catch slightly more light, matching the light ladder. */
+  --background: #2d2921;
+  --surface: #36312a;
+  --surface-muted: #403a31;
+  --foreground: #e9e0cb;
+  --muted: #afa694;
+  --border-subtle: rgb(233 224 203 / 0.16);
+  --accent: #e9e0cb;
+  --accent-foreground: #2d2921;
+  /* Destructive actions share the stamp-ink brick. */
+  --danger: #d4785c;
+  --seal: #c25662;
+  --ambient: radial-gradient(circle at 50% 0%, rgb(233 224 203 / 0.05), transparent 60%);
+  --line-rule: rgb(233 224 203 / 0.08);
+  /* Night fallbacks for the Analog Dispatch accents. */
+  --paper: #2d2921;
+  --paper-raised: #36312a;
+  --crease: rgb(233 224 203 / 0.05);
+  --hairline: rgb(233 224 203 / 0.17);
+  --ink: #e9e0cb;
+  --ink-soft: #afa694;
+  --pencil: #a19886;
+  --stamp-red: #d4785c;
+  --tape: #6e5c31;
+  --tape-ink: #eadfb9;
+}
+
+/* Landing page — “Ink & Invitation”: a cooler, quieter paper-and-ink system
+   scoped to the .landing wrapper. The shared header/footer consume the same
+   semantic tokens (--background, --surface, ...), so they re-tint automatically
+   inside the landing page. Core app surfaces (dashboard, reader, editor)
+   keep the defaults above. --seal is the one accent: privacy/lock cues only. */
+.landing {
+  --background: #f7f6f3;
+  --surface: #fcfbf7;
+  --surface-muted: #efece4;
+  --foreground: #161511;
+  --muted: #6b6a63;
+  --border-subtle: #dedbd2;
+  --accent: #161511;
+  --accent-foreground: #f7f6f3;
+  --seal: #7a2430;
+  --seal-soft: rgb(122 36 48 / 0.07);
+}
+.dark .landing {
+  --background: #141310;
+  --surface: #1b1a16;
+  --surface-muted: #232119;
+  --foreground: #edeae2;
+  --muted: #948f82;
+  --border-subtle: #2b2924;
+  --accent: #edeae2;
+  --accent-foreground: #141310;
+  --seal: #b5495a;
+  --seal-soft: rgb(181 73 90 / 0.12);
+}
+/* Trust band — light mode sits as an ink band with paper text (inherited
+   --accent from .landing). In dark mode it now stays a raised night sheet
+   (#232119, the landing's dark surface-muted) with warm cream ink instead
+   of inverting to a cream strip that glares against the dark page.
+   (Specificity: .dark .trust-band beats .dark .landing's --accent because
+   the rule defines the tokens on the band element itself.) */
+.trust-band {
+  --muted: #a8a49a;
+  --seal: #c05b6d;
+}
+.dark .trust-band {
+  --accent: #232119;
+  --accent-foreground: #edeae2;
+  --muted: #948f82;
+  --seal: #c05b6d;
+}
+/* Keep the overscroll/rubber-band zone in the landing palette so the dark
+   near-black page never flashes the app default gray at the edges. */
+body:has(.landing) {
+  background-color: var(--background);
+}
+
+/* Landing typography — headings set in the house writing face (MashinTahrir,
+   with Special Elite for Latin runs); body text in Vazirmatn. The typewriter
+   faces are Latin-only, so any Farsi glyph falls back to Vazirmatn per
+   character automatically. */
+.landing-display {
+  font-family: "MashinTahrir", "Special Elite", var(--font-vazirmatn), ui-serif, Georgia, serif;
+}
+.landing-body {
+  font-family: var(--font-vazirmatn), var(--font-source-serif), ui-serif, Georgia, serif;
+}
+.landing-ui {
+  /* Inter first would let next/font's fallback face (local Arial, which
+     ships Arabic glyphs) swallow Farsi text — that's the "arial" look.
+     Vazirmatn must precede Inter so Farsi always lands on Vazirmatn. */
+  font-family: var(--font-vazirmatn), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+/* The Living Page demo and editor callouts use the real writing-surface
+   faces (MashinTahrir in Farsi, Special Elite in English) so visitors see
+   the actual product type, not a mockup of it. */
+.landing-typewriter {
+  font-family: "MashinTahrir", "Special Elite", var(--font-vazirmatn), ui-monospace, monospace;
+}
+[dir="ltr"] .landing-typewriter {
+  font-family: "Special Elite", "MashinTahrir", var(--font-vazirmatn), ui-monospace, monospace;
+}
+/* Every heading — landing cards, admin panels, reader pages, and headings
+   typed inside the editor — is set in the house writing face. The
+   typewriter faces are Latin-only, so Farsi glyphs fall back to Vazirmatn
+   per character; the point is that no heading ever falls back to a plain
+   system sans (Tailwind's font-serif/font-sans utilities and .landing-ui
+   all lose to the selectors below). */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+:is(h1, h2, h3, h4, h5, h6):is(.landing-ui, .font-serif, .font-sans, .font-mono) {
+  font-family: "MashinTahrir", "Special Elite", var(--font-vazirmatn), ui-serif, Georgia, serif;
+}
+
+/* Landing type scale (px mobile / px desktop). One monotonic ladder;
+   every heading level sits strictly above the one below it.
+
+   Display (hero title)   34 / 64   text-[2.125rem] md:text-[4rem]
+   CTA headline           30 / 48   text-3xl md:text-5xl
+   Section heading        28 / 40   text-[1.75rem] md:text-[2.5rem]
+   Band sub-heading       24 / 30   text-2xl md:text-3xl
+   Card / step title      20 / 24   text-xl md:text-2xl
+   Body                   16 / 16+  text-base; sections use text-lg md:text-xl
+   Eyebrow                12        text-xs, uppercase, tracking-[0.3em]
+
+   Grid rhythm is per layout family and intentional: cards gap-4, steps
+   gap-10 with hairline arrow connectors, trust list gap-x-10 gap-y-4.
+   Do not force a single uniform gap across them. */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border-subtle: var(--border-subtle);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-danger: var(--danger);
+  --color-seal: var(--seal);
+  --font-sans: var(--font-vazirmatn), ui-sans-serif, system-ui, sans-serif;
+  /* Typewriter is the house display face: headings, hero copy, brand and
+     reader prose set in the typewriter (Farsi → MashinTahrir, English →
+     Special Elite) with Vazirmatn as the safety net for any glyph a typewriter
+     face lacks. Direction-aware: RTL bases on MashinTahrir, LTR on Special
+     Elite, so mixed-script headings keep a matching typewriter look. The
+     `[dir]`-scoped overrides below cascade per subtree, so a Farsi note on an
+     English UI still typesets in the Farsi face. */
+  --font-serif: "MashinTahrir", "Special Elite", var(--font-vazirmatn), var(--font-cormorant), serif;
+  --font-reading: "MashinTahrir", "Special Elite", var(--font-vazirmatn), var(--font-baskerville), serif;
+  /* Harmonized radius: one moderate 12px radius everywhere, subtle and
+     uniform (rounded-full stays pill-shaped for avatars/badges). */
+  --radius-sm: 12px;
+  --radius-md: 12px;
+  --radius-lg: 12px;
+  --radius-xl: 12px;
+  --radius-2xl: 12px;
+  --radius-3xl: 12px;
+  --radius-4xl: 12px;
+}
+
+/* Direction-aware display faces: an LTR subtree (English UI, or an English
+   note on any UI) bases the stack on Special Elite; everything else keeps the
+   Farsi-first MashinTahrir baseline from :root. */
+[dir="ltr"] {
+  --font-serif: "Special Elite", "MashinTahrir", var(--font-vazirmatn), var(--font-cormorant), serif;
+  --font-reading: "Special Elite", "MashinTahrir", var(--font-vazirmatn), var(--font-baskerville), serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-vazirmatn), ui-sans-serif, system-ui, sans-serif;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+/* Vazirmatn everywhere — form controls reset to the UA font by default. */
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-vazirmatn), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* “Analog Dispatch” chrome — app surfaces (reader, editor, admin) typeset
+   UI chrome in Courier Prime, falling back to Vazirmatn for Farsi glyphs
+   (there is no analog typewriter face for Persian; the paper/stamp/tag
+   visual language still carries RTL content). The landing page keeps its
+   own system: `body:has(.landing)` scopes the swap away, matching the
+   existing pattern below. */
+body:not(:has(.landing)) .app-chrome,
+body:not(:has(.landing)) button,
+body:not(:has(.landing)) input,
+body:not(:has(.landing)) select,
+body:not(:has(.landing)) textarea {
+  font-family: var(--font-type), var(--font-vazirmatn), ui-monospace, monospace;
+}
+
+/* Farsi UI — the house rule is “MashinTahrir for headings, Vazir for
+   everything else”, so Farsi app chrome drops the English typewriter face
+   and typesets in Vazirmatn (the Courier-Prime-first rule above would only
+   fall back per-glyph, and any missing face ends up on a system sans).
+   English UI keeps the typewriter look. */
+html:lang(fa) body:not(:has(.landing)) .app-chrome,
+html:lang(fa) body:not(:has(.landing)) button,
+html:lang(fa) body:not(:has(.landing)) input,
+html:lang(fa) body:not(:has(.landing)) select,
+html:lang(fa) body:not(:has(.landing)) textarea,
+html:lang(fa) body:not(:has(.landing)) .btn-type,
+html:lang(fa) body:not(:has(.landing)) .tag-type,
+html:lang(fa) body:not(:has(.landing)) .field-type {
+  font-family: var(--font-vazirmatn), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* App header: solid paper — the same surface as the body it sits on, so no
+   translucent/blurred strip reads as an off-theme white bar while content
+   scrolls beneath it. (The landing page keeps its own glass header.)
+   `--background` matches the app body in both light (#f2ead8) and dark
+   (#2d2921) modes; `--paper` only matches in light. */
+body:not(:has(.landing)) header.app-chrome {
+  background-color: var(--background);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* App paper: the outer page surface with a single fold crease. The crease is
+   felt, not seen — the landing page keeps its own background. */
+body:not(:has(.landing)) {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(100deg, transparent 38%, var(--crease) 38.4%, transparent 38.8%),
+    linear-gradient(100deg, transparent 70%, var(--crease) 70.4%, transparent 70.8%);
+  background-attachment: fixed;
+}
+
+/* The TipTap editor surface inherits the same Farsi-first stack. */
+.ProseMirror {
+  font-family: var(--font-vazirmatn), ui-sans-serif, system-ui, sans-serif;
+  /* Text size follows the editor's A−/A+ controls (--editor-scale) — same
+     mechanism the reader page uses for its zoom. The per-direction rules
+     below set the base size: RTL/Farsi 14px (0.875rem), LTR/English
+     12px (0.75rem). The toolbar picker reports these same defaults. */
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: calc(0.875rem * var(--editor-scale, 1));
+  /* One Enter = one compact line box (paragraphs have margin 0). */
+  line-height: 1.5;
+  color: var(--foreground);
+  transition: font-size 160ms ease;
+}
+/* Language-aware writing surface (editor + chapter editor + focus mode): the
+   text follows the NOTE's own language, not the app UI locale. Farsi/RTL note
+   bodies read in Vazirmatn (the house body face) with typewriter headings;
+   LTR/English notes in Special Elite. Each stack cross-references the other
+   typewriter face so mixed Farsi/Latin runs stay in a matching typewriter
+   style, with Vazirmatn as the final safety net for any glyph a typewriter
+   face lacks. The title inputs use font-serif (they ARE headings), so they
+   keep the typewriter face. RTL also carries the Farsi default font size
+   (14px); LTR the English default (12px). Title inputs keep their explicit
+   Tailwind size; only the writing surface receives this base. */
+.ProseMirror[dir="rtl"] {
+  font-family: var(--font-vazirmatn), ui-sans-serif, system-ui, sans-serif;
+}
+.ProseMirror[dir="rtl"] :is(h1, h2, h3, h4, h5, h6) {
+  font-family: "MashinTahrir", "Special Elite", var(--font-vazirmatn), ui-serif, Georgia, serif;
+}
+input.font-serif[dir="rtl"] {
+  font-family: "MashinTahrir", "Special Elite", "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+}
+.ProseMirror[dir="rtl"] {
+  font-size: calc(0.875rem * var(--editor-scale, 1));
+}
+.ProseMirror[dir="ltr"],
+input.font-serif[dir="ltr"] {
+  font-family: "Special Elite", "MashinTahrir", "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+}
+.ProseMirror[dir="ltr"] {
+  /* English default 12px (0.75rem); 12pt would be 16px. */
+  font-size: calc(0.75rem * var(--editor-scale, 1));
+  /* Special Elite's space glyph is very narrow — widen the word gap so
+     Latin sentences breathe like real typewriter copy. */
+  word-spacing: 0.5em;
+  letter-spacing: 0.01em;
+}
+.ProseMirror p {
+  /* Enter inserts a paragraph — zero margin keeps the writing surface at
+     exactly one line per Enter. (The published reader page keeps its own
+     spacious paragraph rhythm via .reader-prose.) */
+  margin: 0;
+}
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4,
+.ProseMirror h5,
+.ProseMirror h6 {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 1.4em 0 0.5em;
+}
+.ProseMirror h1 {
+  font-size: 1.6em;
+}
+.ProseMirror h2 {
+  font-size: 1.35em;
+}
+.ProseMirror h3 {
+  font-size: 1.15em;
+}
+.ProseMirror h4 {
+  font-size: 1em;
+}
+.ProseMirror h5 {
+  font-size: 0.95em;
+}
+.ProseMirror h6 {
+  font-size: 0.9em;
+}
+.ProseMirror blockquote {
+  /* Magazine-style quotation card: a very pale grey panel that reads
+     clearly as a quote, distinct from the paragraph text around it. */
+  background: var(--surface-muted);
+  border-inline-start: 2px solid var(--accent);
+  border-radius: 12px;
+  padding: 0.7em 1.1em;
+  margin: 1.2em 0;
+  color: var(--muted);
+  font-style: italic;
+}
+.ProseMirror ul {
+  /* Tailwind v4 preflight strips markers (ol,ul,menu { list-style: none }) —
+     restore them so bullets and numbers render beside the text (in the
+     padding gutter, never on top of it), in both LTR and RTL. */
+  list-style-type: disc;
+}
+.ProseMirror ol {
+  list-style-type: decimal;
+}
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-inline-start: 1.5em;
+  margin: 0 0 1.1em;
+  /* Markers live in the gutter, not inside the text box. */
+  list-style-position: outside;
+}
+.ProseMirror a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* Pale highlight swatches need dark text to stay readable in both modes. */
+.ProseMirror mark {
+  color: #292524;
+  border-radius: 2px;
+  padding: 0 0.15em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.ProseMirror img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 1.2em auto;
+  display: block;
+}
+.ProseMirror code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.ProseMirror pre {
+  background: var(--surface-muted);
+  padding: 1em;
+  border-radius: 0.5rem;
+  /* Long code lines wrap instead of ever scrolling horizontally. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow-x: hidden;
+  font-size: 0.85em;
+  margin: 1.2em 0;
+}
+.ProseMirror hr {
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+  margin: 2em 0;
+}
+.ProseMirror table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.2em 0;
+  background: var(--surface);
+  font-size: 0.95em;
+}
+.ProseMirror .tableWrapper {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.ProseMirror th,
+.ProseMirror td {
+  border: 1px solid var(--border-subtle);
+  padding: 0.5em 0.75em;
+  background: var(--surface);
+  vertical-align: top;
+}
+.ProseMirror th {
+  background: var(--surface-muted);
+  font-weight: 600;
+}
+.ProseMirror ul[data-type="taskList"],
+.ProseMirror .task-list {
+  list-style: none;
+  padding-inline-start: 0.25em;
+}
+.ProseMirror li[data-type="taskItem"],
+.ProseMirror .task-item {
+  display: flex;
+  gap: 0.55em;
+  align-items: flex-start;
+}
+.ProseMirror li[data-type="taskItem"] > label,
+.ProseMirror li[data-type="taskItem"] input[type="checkbox"],
+.ProseMirror .task-item > input[type="checkbox"] {
+  margin-top: 0.4em;
+  flex-shrink: 0;
+}
+.ProseMirror .task-item[data-checked] > p {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--muted);
+  content: attr(data-placeholder);
+  float: inline-start;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Optional ruled “notebook page” backdrop for the writing surface (editor +
+   focus mode). Each rule is drawn exactly at the TEXT BASELINE of its line,
+   not at the bottom of the line-box — so letters sit on the rule like a real
+   notebook, while descenders (گ، ی، p، y) hang below it. The baseline offset
+   comes from the BODY face's metric source (engines honor OS/2 typo metrics
+   when USE_TYPO_METRICS is set, hhea otherwise):
+     Special Elite (LTR body): ascent .7031em, descent .2969em;
+       line-height 1.5 → baseline 0.9531em from line-box top.
+     Vazirmatn (RTL body): typo ascent 1.0254em, descent .5371em;
+       line-height 1.5 → baseline 0.9941em from line-box top.
+   Multiplied by the per-direction base font size (LTR 0.75rem, RTL 0.875rem)
+   and the editor zoom (--editor-scale), so the grid always lands on the
+   text at any zoom level. The --rule-lh step repeats the same rhythm as
+   the line boxes — paragraphs have margin 0, so every Enter drops the
+   caret onto the next rule.
+   Heading glyphs (MashinTahrir / Special Elite) can't sit on the same grid
+   as a Vazirmatn body (incommensurate font metrics), so instead their
+   margins below snap every block to whole line-steps: the rules stay
+   continuous and body text after a heading resumes exactly on a rule, like
+   writing on real ruled paper. */
+.notebook-ruled {
+  /* Baseline from line-box top, in rem (LTR default: 0.75rem × 0.9531). */
+  --rule-baseline: calc(0.715rem * var(--editor-scale, 1));
+  --rule-lh: calc(1.125rem * var(--editor-scale, 1));
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--rule-baseline) - 1px),
+    var(--line-rule) calc(var(--rule-baseline) - 1px),
+    var(--line-rule) var(--rule-baseline),
+    transparent var(--rule-baseline),
+    transparent var(--rule-lh)
+  );
+  /* Anchor the grid to the content box (wrapper padding can never shift the
+     phase) and to the content itself (a scrolling wrapper can't desync it). */
+  background-origin: content-box;
+  background-attachment: local;
+}
+.notebook-ruled:has(.ProseMirror[dir="rtl"]) {
+  /* RTL/Farsi: baseline 0.9941em × 0.875rem (14px) base size. */
+  --rule-baseline: calc(0.87rem * var(--editor-scale, 1));
+  --rule-lh: calc(1.3125rem * var(--editor-scale, 1));
+}
+
+/* Every block on a ruled surface must consume whole line-steps (see the
+   comment above): heading heights are 1.6/1.35/1.15/1/0.95/0.9 × their 1.35
+   line height, so h1–h3 get margins filling out 2 steps ((2 − 1.44/1.215/
+   1.035) / 2 of a step) and h4–h6 fill out 1 step ((1 − 0.9)/2 = 0.05).
+   Lists, quotes, code, tables, images and dividers take one full step above
+   and below. */
+.notebook-ruled .ProseMirror h1 {
+  margin-block: calc(var(--rule-lh) * 0.28);
+}
+.notebook-ruled .ProseMirror h2 {
+  margin-block: calc(var(--rule-lh) * 0.3925);
+}
+.notebook-ruled .ProseMirror h3 {
+  margin-block: calc(var(--rule-lh) * 0.4825);
+}
+.notebook-ruled .ProseMirror h4 {
+  margin-block: calc(var(--rule-lh) * 0.05);
+}
+.notebook-ruled .ProseMirror h5 {
+  margin-block: calc(var(--rule-lh) * 0.05);
+}
+.notebook-ruled .ProseMirror h6 {
+  margin-block: calc(var(--rule-lh) * 0.05);
+}
+.notebook-ruled .ProseMirror :is(ul, ol) {
+  margin-block: 0 0 var(--rule-lh);
+}
+.notebook-ruled .ProseMirror :is(blockquote, pre, table, img, hr) {
+  margin-block: var(--rule-lh);
+}
+
+/* On a ruled surface the first body block starts at the first rule (the
+   notebook writer begins exactly on the line) — no leading margin drift.
+   Headings keep their step margins above so the grid stays continuous. */
+.notebook-ruled .ProseMirror > *:first-child:not(:is(h1, h2, h3, h4, h5, h6)) {
+  margin-top: 0;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* Film grain over the whole app — a fixed, non-interactive noise layer
+   (pointer-events: none, aria-hidden) that sits above every surface. The
+   texture is a URL-encoded SVG feTurbulence tile. Multiply in light mode
+   (darkens the paper), screen in dark mode (lightens the ink), so the
+   speckle stays visible on both surfaces without washing out contrast.
+   Static — no animation, no repaint cost, nothing to disable for
+   prefers-reduced-motion. */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+  mix-blend-mode: multiply;
+  opacity: 0.04;
+}
+.dark .grain-overlay {
+  mix-blend-mode: screen;
+  opacity: 0.07;
+}
+
+/* “Analog Dispatch” component treatments — quiet chrome, loud stamps. */
+
+/* Typewriter button: sharp ink outline, press feels like a typebar (quick
+   mechanical scale+nudge), hover inverts ink/paper. */
+.btn-type {
+  font-family: var(--font-type), var(--font-vazirmatn), ui-monospace, monospace;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+  background: transparent;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+.btn-type:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+.btn-type:active {
+  transform: scale(0.97) rotate(-0.4deg);
+}
+/* Solid variant — ink-filled primary, paper text. */
+.btn-type-solid {
+  background: var(--ink);
+  color: var(--paper);
+}
+.btn-type-solid:hover {
+  background: transparent;
+  color: var(--ink);
+}
+
+/* Kraft-tape tag — the signature element. Each tag gets a slightly different
+   rotation (set via inline style or the tilt utilities below) so a row reads
+   as pasted by hand, not printed. */
+.tag-type {
+  display: inline-block;
+  font-family: var(--font-type), var(--font-vazirmatn), ui-monospace, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--tape-ink);
+  background: var(--tape);
+  padding: 2px 8px;
+  border-radius: 1px;
+  box-shadow: 1px 1px 0 rgb(33 30 26 / 0.15);
+}
+.tag-tilt-1 {
+  transform: rotate(-3deg);
+}
+.tag-tilt-2 {
+  transform: rotate(0.5deg);
+}
+.tag-tilt-3 {
+  transform: rotate(3deg);
+}
+.tag-tilt-4 {
+  transform: rotate(-0.5deg);
+}
+/* Night kraft: the 1px offset edge darkens to real shadow on the dark
+   sheet instead of dissolving into it. */
+.dark .tag-type {
+  box-shadow: 1px 1px 0 rgb(0 0 0 / 0.35);
+}
+
+/* Rubber stamp — status marks (draft / published / saved) in the distressed
+   stamp face. Multiply lets the paper grain show faintly through the ink. */
+.stamp {
+  display: inline-block;
+  font-family: var(--font-stamp), var(--font-vazirmatn), ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--stamp-red);
+  border: 2px solid var(--stamp-red);
+  border-radius: 2px;
+  padding: 3px 10px;
+  transform: rotate(-6deg);
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+}
+/* Night stamps print as solid brick: multiply against dark paper crushes
+   the ink into near-invisibility, so the stamp sits ON the paper instead. */
+.dark .stamp {
+  mix-blend-mode: normal;
+  opacity: 0.95;
+}
+
+/* Underline field — everything types onto a line, never into a box. */
+.field-type {
+  font-family: var(--font-type), var(--font-vazirmatn), ui-monospace, monospace;
+  font-size: 15px;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--hairline);
+  border-radius: 0;
+  padding: 6px 2px;
+  box-shadow: none;
+}
+.field-type:focus {
+  border-bottom-color: var(--ink);
+  outline: none;
+}
+.field-type::placeholder {
+  color: var(--pencil);
+  font-style: italic;
+}
+
+/* Paper sheet — raised page with the stacked-paper edge (hard offset shadow)
+   plus a soft lift. A single soft shadow reads as a modern card; both read
+   as a sheet of paper. */
+.paper-sheet {
+  background: var(--paper-raised);
+  border-radius: 2px;
+  box-shadow:
+    3px 3px 0 rgb(33 30 26 / 0.06),
+    0 12px 30px rgb(33 30 26 / 0.08);
+}
+/* Night paper keeps its stacked edge — the light-mode ink tint would
+   vanish on the dark sheet, so the offset flips to a real black shadow. */
+.dark .paper-sheet {
+  box-shadow:
+    3px 3px 0 rgb(0 0 0 / 0.3),
+    0 12px 30px rgb(0 0 0 / 0.38);
+}
+
+/* Pencil margin annotation — for reader comments and version callouts only.
+   Handwriting is slow to read; never use it for dense UI text. */
+.margin-note {
+  font-family: var(--font-hand), var(--font-vazirmatn), cursive;
+  font-size: 15px;
+  color: var(--pencil);
+  transform: rotate(-1.5deg);
+}
+
+/* Block caret — the typed-message register uses a one-cell block cursor
+   instead of a thin line (progressive enhancement; Chromium 120+). */
+.ProseMirror {
+  caret-color: var(--ink);
+}
+@supports (caret-shape: block) {
+  .ProseMirror {
+    caret-shape: block;
+  }
+}
+
+/* Stamp press-in — the autosave “saved” badge lands like a stamp being
+   pressed, then fades: quick settle, not a sliding toast. */
+@keyframes stamp-press {
+  0% {
+    transform: scale(1.15) rotate(-6deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.98) rotate(-6deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1) rotate(-6deg);
+    opacity: 0.85;
+  }
+}
+.stamp-press {
+  animation: stamp-press 150ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes stamp-fade {
+  to {
+    opacity: 0;
+  }
+}
+.stamp-fade {
+  animation: stamp-fade 400ms ease 2s both;
+}
+
+@layer base {
+  /* Keyboard focus indicator. Lives in the base layer so per-element Tailwind
+     outline utilities (e.g. outline-none + focus:border-foreground) can
+     intentionally disable it — an unlayered rule would always win. */
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
+  }
+}
+
+/* The TipTap surface must NEVER paint the rectangular focus ring — contenteditable
+   always matches :focus-visible, and a straight outline breaks out of the rounded
+   writing surface (the “black square” inside the paper). */
+.ProseMirror:focus,
+.ProseMirror:focus-visible,
+.ProseMirror-focused {
+  outline: none;
+}
+
+/* Hero entrance — used on the landing page. */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fade-up 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Landing scroll reveal — sections rise 12px into place once, on entry.
+   The global reduced-motion block below zeroes the transition, so this
+   degrades to an instant fade for users who ask for less motion. */
+.landing-reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 250ms ease-out, transform 250ms ease-out;
+}
+.landing-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Landing link hover: a thin underline draws in from the writing start
+   (left in LTR, right in RTL via logical properties). */
+.landing-link {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 200ms ease-out;
+  padding-bottom: 2px;
+}
+[dir="ltr"] .landing-link {
+  background-position: 0 100%;
+}
+.landing-link:hover {
+  background-size: 100% 1px;
+}
+
+/* Typewriter stick caret for the Living Page demo — a solid bar at the
+   typing position, blinking like a real machine's. It sits just ahead of
+   the words (after the last typed character) and stays visible forever
+   because the demo loops. */
+.landing-caret {
+  display: inline-block;
+  width: 0.09em;
+  height: 1.1em;
+  margin-inline-start: 0.12em;
+  vertical-align: text-bottom;
+  background: currentColor;
+  animation: caret-blink 1s steps(1) infinite;
+}
+@keyframes caret-blink {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  56%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Wax-seal stamp — the one playful hover on the page, tied to the one
+   functional accent color. */
+.landing-seal {
+  transition: transform 200ms ease-out;
+}
+.landing-seal:hover {
+  transform: scale(1.06) rotate(-3deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+  /* Typebar press and stamp land as instantaneous state changes. */
+  .btn-type:active {
+    transform: none;
+  }
+  .stamp-press,
+  .stamp-fade {
+    animation: none;
+    opacity: 0.85;
+  }
+}
+
+/* Book-like prose for the reader chapter view. */
+.reader-prose {
+  font-family: var(--font-reading), var(--font-vazirmatn), ui-serif, serif;
+  /* Reading size stays deliberately larger than the editor defaults (Farsi
+     14px / English 12px) so long-form reading is comfortable: Farsi/RTL 20pt
+     (≈26.7px, 1.6667rem), English/LTR 16px (1rem). Explicit per-selection
+     font sizes from the toolbar picker override this via marks. */
+  font-size: calc(1.6667rem * var(--reader-scale, 1));
+  line-height: 1.9;
+  color: var(--foreground);
+  transition: font-size 160ms ease;
+}
+/* Farsi reading bodies read in Vazirmatn (the house body face); headings
+   inside stay on the typewriter face via the h1–h6 element rule. Direct
+   rule also beats any dir-scoped --font-reading override from the host UI. */
+.reader-prose[dir="rtl"] {
+  font-family: var(--font-vazirmatn), "MashinTahrir", "Special Elite", var(--font-baskerville), serif;
+}
+.reader-prose[dir="ltr"] {
+  font-size: calc(1rem * var(--reader-scale, 1));
+}
+.reader-prose > *:first-child {
+  margin-top: 0;
+}
+.reader-prose p {
+  margin: 0 0 1.35em;
+}
+.reader-prose h1,
+.reader-prose h2,
+.reader-prose h3,
+.reader-prose h4,
+.reader-prose h5,
+.reader-prose h6 {
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 1.8em 0 0.6em;
+}
+.reader-prose h1 {
+  font-size: 1.7em;
+}
+.reader-prose h2 {
+  font-size: 1.4em;
+}
+.reader-prose h3 {
+  font-size: 1.2em;
+}
+.reader-prose h4 {
+  font-size: 1em;
+}
+.reader-prose h5 {
+  font-size: 0.95em;
+}
+.reader-prose h6 {
+  font-size: 0.9em;
+}
+.reader-prose ul {
+  /* Same preflight marker restoration as the editor surface. */
+  list-style-type: disc;
+}
+.reader-prose ol {
+  list-style-type: decimal;
+}
+.reader-prose ul,
+.reader-prose ol {
+  margin: 0 0 1.35em;
+  padding-inline-start: 1.5em;
+  list-style-position: outside;
+}
+.reader-prose li {
+  margin: 0.35em 0;
+}
+.reader-prose blockquote {
+  /* Same pale quote panel as the editor, so what the writer sees is
+     exactly what readers get. */
+  background: var(--surface-muted);
+  border-inline-start: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 0.7em 1.1em;
+  margin: 1.5em 0;
+  color: var(--muted);
+  font-style: italic;
+}
+.reader-prose pre {
+  background: var(--surface-muted);
+  padding: 1em;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.85em;
+  margin: 1.5em 0;
+}
+.reader-prose code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.reader-prose img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 1.5em auto;
+  display: block;
+}
+.reader-prose a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.reader-prose mark {
+  background: #f7e2a8;
+  color: #292524;
+  border-radius: 2px;
+  padding: 0 0.15em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.reader-prose hr {
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+  margin: 2.5em 0;
+}
+.reader-prose table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  background: var(--surface);
+  font-size: 0.95em;
+}
+.reader-prose th,
+.reader-prose td {
+  border: 1px solid var(--border-subtle);
+  padding: 0.55em 0.8em;
+  background: var(--surface);
+  vertical-align: top;
+}
+.reader-prose th {
+  background: var(--surface-muted);
+  font-weight: 600;
+}
+.reader-prose ul.task-list {
+  list-style: none;
+  padding-inline-start: 0.25em;
+}
+.reader-prose li.task-item {
+  display: flex;
+  gap: 0.55em;
+  align-items: flex-start;
+}
+.reader-prose li.task-item::before {
+  content: attr(data-checked);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15em;
+  height: 1.15em;
+  margin-top: 0.35em;
+  flex-shrink: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.3em;
+  font-size: 0.75em;
+  line-height: 1;
+  color: var(--accent-foreground);
+}
+.reader-prose li.task-item[data-checked] > p {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+/* Mixed Farsi/Latin alignment: every block auto-detects its own base
+   direction, so a Latin-first paragraph stays left-aligned while Farsi
+   paragraphs keep their RTL flow, and inline English words never yank the
+   whole line out of alignment. Explicit alignment set from the toolbar
+   (inline text-align style) still wins.
+
+   When the author PINNED a direction (toolbar RTL/LTR toggle, or a stored
+   note direction), the pinned container dir is authoritative: blocks stop
+   self-detecting (unicode-bidi: normal) and text-align: start follows the
+   container — right in RTL, left in LTR — so the whole surface truly flips. */
+.ProseMirror p,
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4,
+.ProseMirror h5,
+.ProseMirror h6,
+.ProseMirror li,
+.ProseMirror blockquote {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+/* Pinned direction (see comment above): the container dir wins, so the
+   whole writing surface flips instead of each block self-detecting. */
+.ProseMirror.dir-pinned p,
+.ProseMirror.dir-pinned h1,
+.ProseMirror.dir-pinned h2,
+.ProseMirror.dir-pinned h3,
+.ProseMirror.dir-pinned h4,
+.ProseMirror.dir-pinned h5,
+.ProseMirror.dir-pinned h6,
+.ProseMirror.dir-pinned li,
+.ProseMirror.dir-pinned blockquote {
+  unicode-bidi: normal;
+  text-align: start;
+}
+.ProseMirror img,
+.ProseMirror a,
+.ProseMirror code,
+.ProseMirror strong,
+.ProseMirror em {
+  unicode-bidi: isolate;
+}
+.reader-prose p,
+.reader-prose h1,
+.reader-prose h2,
+.reader-prose h3,
+.reader-prose h4,
+.reader-prose h5,
+.reader-prose h6,
+.reader-prose li,
+.reader-prose blockquote {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+.reader-prose img,
+.reader-prose a,
+.reader-prose code,
+.reader-prose strong,
+.reader-prose em {
+  unicode-bidi: isolate;
+}
+
+/* Soft “page turn” — a gentle slide with a light shadow, direction-aware. */
+@keyframes page-in-ltr {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes page-in-rtl {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.page-turn {
+  animation: page-in-ltr 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+[dir="rtl"] .page-turn {
+  animation-name: page-in-rtl;
+}
+
+/* The “physical page” card the chapter text sits on — a raised sheet of
+   telegraph paper: sharp corners, a stacked-paper hard shadow, and a soft
+   lift beneath. */
+.reader-page {
+  background: var(--paper-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  box-shadow:
+    3px 3px 0 rgb(33 30 26 / 0.06),
+    0 12px 30px rgb(33 30 26 / 0.08);
+  padding: 2.25rem 1.5rem;
+  overflow-x: auto;
+}
+/* Night sheet — same stacked-paper edge, black shadow for depth. */
+.dark .reader-page {
+  box-shadow:
+    3px 3px 0 rgb(0 0 0 / 0.3),
+    0 12px 30px rgb(0 0 0 / 0.38);
+}
+
+@media (min-width: 640px) {
+  .reader-page {
+    padding: 3rem 3.25rem;
+  }
+}
+
+/* Liker avatars — initials circle with a per-name pastel hue. The hue is set
+   inline via --avatar-hue; light/dark palettes live here. */
+.liker-avatar {
+  background-color: hsl(var(--avatar-hue, 210) 72% 90%);
+  color: hsl(var(--avatar-hue, 210) 45% 26%);
+}
+.dark .liker-avatar {
+  background-color: hsl(var(--avatar-hue, 210) 55% 26%);
+  color: hsl(var(--avatar-hue, 210) 85% 88%);
+}
+
+/* Per-link content protection (the “protect content” share option): readers
+   can't select/drag the text or save images, and the page is blocked when
+   printing. Screenshots can't be blocked on the open web — this is the
+   strongest browser-side deterrent. Applied to the reader <main> only when
+   the link's `protectContent` flag is on, so ordinary shared links stay
+   copyable for readers who want to quote them. */
+.reader-protected,
+.reader-protected .reader-page {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.reader-protected img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+.reader-protected::selection,
+.reader-protected .reader-page::selection {
+  background: transparent;
+}
+@media print {
+  .reader-protected {
+    display: none;
+  }
+}

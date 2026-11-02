@@ -1,0 +1,48 @@
+name = "feather"
+# The worker script name must stay "feather": the scribo.ir custom domain is
+# bound to this Cloudflare service. Renaming it would require re-attaching the
+# custom domain in the dashboard (zone-edit permission) before it can deploy.
+main = ".open-next/worker.js"
+compatibility_date = "2026-08-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Serve this worker only on custom domains (scribo.ir) — the workers.dev
+# subdomain (the account *.workers.dev) is turned off on deploy.
+workers_dev = false
+
+assets = { directory = ".open-next/assets", binding = "ASSETS" }
+
+# One-time setup (already done long ago — do NOT repeat):
+#   1. npx wrangler d1 create feather          -> the database_id is below
+# NOTE: the live database NAME in Cloudflare is "feather" (created before the
+# Scribo rebrand, never renamed). The database_id below is what really matters.
+[[d1_databases]]
+binding = "DB"
+database_name = "feather"
+database_id = "0d3b7b33-2daf-43ed-bbc7-139073788a0f"
+migrations_dir = "migrations"
+
+# R2 is used for uploaded media/fonts (Phase 3+). Currently commented out
+# because R2 is not yet activated on the account (API error 10042).
+# Activate R2 in the Cloudflare dashboard, then uncomment and redeploy.
+# [[r2_buckets]]
+# binding = "MEDIA"
+# bucket_name = "scribo-media"
+
+[vars]
+APP_URL = "https://scribo.ir"
+# Google OAuth login. Create an OAuth client at
+# Google Cloud Console → APIs & Services → Credentials → Create credentials
+# → OAuth client ID → Web application, then:
+#   - set GOOGLE_CLIENT_ID (public var) = the client id
+#   - put the CLIENT SECRET with:  npx wrangler secret put GOOGLE_CLIENT_SECRET
+#     (never commit it)
+#   - add to the client's Authorized redirect URIs:
+#       https://scribo.ir/api/auth/google/callback
+#       http://localhost:3000/api/auth/google/callback
+GOOGLE_CLIENT_ID = ""
+# Comma-separated list of Google emails allowed to sign in (your own first).
+# Emails that match a registered writer's address sign in as that writer;
+# allowlisted emails that match no writer sign in as the super admin.
+GOOGLE_ALLOWED_EMAILS = "aliassadi@live.com"
+GOOGLE_REDIRECT_URI = "https://scribo.ir/api/auth/google/callback"
