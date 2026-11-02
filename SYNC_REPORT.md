@@ -220,3 +220,33 @@ unreleased to preserve.
 
 Nothing belonging to them was read beyond listing, and nothing was
 modified.
+
+---
+
+## 10. First automatic deploy — outcome (Step 11)
+
+Pushed the workflow commit; GitHub Actions run history:
+
+1. **Run 1 failed** (by design, safely): the workflow used Node 20, but the
+   pinned wrangler 4.118 requires Node >= 22. Nothing was deployed — the
+   failing step (migrations) comes before the deploy step, and a failed run
+   never touches the live worker.
+2. **Run 2 succeeded** after a one-line fix (`node-version: 22`): install →
+   type-check → next build → opennext build → D1 migrations applied
+   (`0001_live_index_baseline.sql`, 14 idempotent commands — verified no-op
+   on live) → deploy. New worker version id `46cb702b-c23b-4a31-acd3-25517e180a38`.
+
+**Verification that nothing changed for visitors** (same 11 URLs as §4d,
+before vs after, saved in `after-snapshots/`):
+
+- Every status code identical (200/200/200/200/307/200/200/200/405/200/404).
+- Every body size identical.
+- Body bytes identical after removing per-build values (Next.js build id,
+  content-hashed chunk filenames, the /api/health timestamp) — verified
+  page by page.
+- Live worker settings unchanged: same D1 binding id, same vars, same
+  compatibility date/flags, observability still off.
+- Custom domain scribo.ir → worker `feather` still attached;
+  `*.workers.dev` subdomain still disabled (404).
+
+Rollback was not needed.
