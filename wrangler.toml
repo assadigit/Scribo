@@ -22,9 +22,11 @@ database_name = "feather"
 database_id = "0d3b7b33-2daf-43ed-bbc7-139073788a0f"
 migrations_dir = "migrations"
 
-# R2 is used for uploaded media/fonts (Phase 3+). Currently commented out
-# because R2 is not yet activated on the account (API error 10042).
-# Activate R2 in the Cloudflare dashboard, then uncomment and redeploy.
+# R2 (Cloudflare's file storage) is intentionally NOT used — owner decision,
+# 2026-11-02: R2 is a paid feature and is not needed. Scribo runs on D1 only;
+# uploaded fonts are stored inside the D1 database as data-URLs. The block
+# below is kept purely as a template in case this ever changes (R2 would
+# first have to be enabled in the Cloudflare dashboard).
 # [[r2_buckets]]
 # binding = "MEDIA"
 # bucket_name = "scribo-media"

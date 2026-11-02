@@ -204,10 +204,13 @@ unreleased to preserve.
    removed it from the current tree, but it remains in old commits and
    anyone can download it. Options: leave it (token rotation makes it
    harmless) or ask GitHub Support / use `git filter-repo` to purge.
-3. **R2 is not enabled on the account** (API error 10042). The code keeps
-   media as data-URLs in D1 meanwhile. If you want file uploads on R2
-   later, enable R2 in the dashboard and uncomment the `[[r2_buckets]]`
-   block in `wrangler.toml`.
+3. **R2 — DECIDED by the owner (2026-11-02): not wanted.** R2 is a paid
+   Cloudflare feature; the account does not have it enabled and does not
+   need it. Scribo stores uploaded fonts as data-URLs inside D1. The
+   `[[r2_buckets]]` block in `wrangler.toml` stays commented out as a
+   template only. (The stale `MEDIA: R2Bucket` line in the generated
+   `worker-configuration.d.ts` is harmless — no code uses it, and it
+   disappears the next time `wrangler types` is re-run.)
 4. Optional: the legacy `.cloudflare-secrets.json` mechanism still works
    via `scripts/cloudflare.mjs`, but plain environment variables (`.env`)
    are now the recommended path.
@@ -250,3 +253,19 @@ before vs after, saved in `after-snapshots/`):
   `*.workers.dev` subdomain still disabled (404).
 
 Rollback was not needed.
+
+---
+
+## 11. Follow-up at the owner's request (same day, 2026-11-02)
+
+- **Local zip deleted.** `Scribo Github.zip` (17 MB, the owner's original
+  upload) was removed from the local backup folder at the owner's request.
+  It is no longer needed: the source is fully in this repo, on GitHub and
+  deployed — and the zip also contained the old Cloudflare token (see §2),
+  so removing it is safer. The local *extracted* copy still exists outside
+  the repo for reference. The live-state backup files in that folder were
+  NOT touched.
+- **R2 decision recorded** (see §8.3): no R2 — D1 is enough. The comment
+  in `wrangler.toml` and a line in the README now say so in plain words.
+- Run 3 (the docs-only push `d9e8cbe`) also deployed green — extra proof
+  that every push to `main`, code or docs, deploys automatically.

@@ -8,6 +8,9 @@ bilingual EN/FA) and can leave comments at the end of chapters.
 - **Live site:** https://scribo.ir
 - **Runs on:** Cloudflare Workers (a fast, serverless hosting platform)
 - **Database:** Cloudflare D1 (SQLite at the edge), database name `feather`
+- **Storage:** nothing else is used — no R2 (Cloudflare's paid file
+  storage) and no KV. Uploaded fonts are kept inside the D1 database
+  itself, so there is nothing extra to pay for.
 - **Automatic deploys:** every push to the `main` branch on GitHub is built
   and deployed to Cloudflare automatically by GitHub Actions
 
