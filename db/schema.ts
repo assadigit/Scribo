@@ -68,6 +68,7 @@ export const sessions = sqliteTable(
   (t) => [
     index("idx_sessions_admin").on(t.adminId),
     index("idx_sessions_user").on(t.userId),
+    index("idx_sessions_expires").on(t.expiresAt),
   ],
 );
 
@@ -91,7 +92,7 @@ export const texts = sqliteTable(
     updatedAt: integer("updated_at").notNull(),
     publishedAt: integer("published_at"),
   },
-  (t) => [index("idx_texts_owner").on(t.ownerId)],
+  (t) => [index("idx_texts_owner").on(t.ownerId), index("idx_texts_updated").on(t.updatedAt)],
 );
 
 export const chapters = sqliteTable(
@@ -106,7 +107,10 @@ export const chapters = sqliteTable(
     createdAt: integer("created_at").notNull(),
     updatedAt: integer("updated_at").notNull(),
   },
-  (t) => [index("idx_chapters_text").on(t.textId)],
+  (t) => [
+    index("idx_chapters_text").on(t.textId),
+    index("idx_chapters_text_pos").on(t.textId, t.position),
+  ],
 );
 
 export const versions = sqliteTable(
@@ -139,14 +143,18 @@ export const drafts = sqliteTable("drafts", {
 });
 
 /* Tags are personal — owner_id null means admin-owned (the original writer). */
-export const tags = sqliteTable("tags", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  nameFa: text("name_fa"),
-  ownerId: text("owner_id").references(() => users.id, { onDelete: "cascade" }),
-  createdAt: integer("created_at").notNull(),
-});
+export const tags = sqliteTable(
+  "tags",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    slug: text("slug").notNull().unique(),
+    nameFa: text("name_fa"),
+    ownerId: text("owner_id").references(() => users.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [index("idx_tags_owner").on(t.ownerId)],
+);
 
 export const textTags = sqliteTable(
   "text_tags",
@@ -171,7 +179,7 @@ export const shareLinks = sqliteTable(
     tokenHash: text("token_hash").notNull().unique(),
     tokenPrefix: text("token_prefix").notNull(),
     /** Full token (for admin to re-view/copy share URLs). Hash is used for lookup. */
-    token: text("token").notNull().default("").unique(),
+    token: text("token").notNull().default(""),
     label: text("label"),
     greeting: text("greeting"),
     passwordHash: text("password_hash"),
@@ -195,7 +203,11 @@ export const shareLinks = sqliteTable(
     expiresAt: integer("expires_at"),
     lastUsedAt: integer("last_used_at"),
   },
-  (t) => [index("idx_share_links_text").on(t.textId)],
+  (t) => [
+    index("idx_share_links_text").on(t.textId),
+    index("idx_share_links_text_created").on(t.textId, t.createdAt),
+    uniqueIndex("idx_share_links_token").on(t.token),
+  ],
 );
 
 /* Source/reference links attached to a text — the author's reading list shown
@@ -281,16 +293,20 @@ export const inviteCodes = sqliteTable(
 );
 
 /* Self-service password reset tokens (delivery needs an email provider). */
-export const passwordResetCodes = sqliteTable("password_reset_codes", {
-  id: text("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  tokenHash: text("token_hash").notNull().unique(),
-  expiresAt: integer("expires_at").notNull(),
-  usedAt: integer("used_at"),
-  createdAt: integer("created_at").notNull(),
-});
+export const passwordResetCodes = sqliteTable(
+  "password_reset_codes",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull().unique(),
+    expiresAt: integer("expires_at").notNull(),
+    usedAt: integer("used_at"),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [index("idx_reset_codes_expires").on(t.expiresAt)],
+);
 
 export const comments = sqliteTable(
   "comments",
@@ -319,6 +335,8 @@ export const comments = sqliteTable(
   (t) => [
     index("idx_comments_version").on(t.versionId),
     index("idx_comments_text_status").on(t.textId, t.status),
+    index("idx_comments_text_created").on(t.textId, t.createdAt),
+    index("idx_comments_version_created").on(t.versionId, t.createdAt),
   ],
 );
 
@@ -368,5 +386,8 @@ export const readSessions = sqliteTable(
   (t) => [
     index("idx_read_sessions_link").on(t.shareLinkId),
     index("idx_read_sessions_text").on(t.textId),
+    index("idx_read_sessions_completed").on(t.completed),
+    index("idx_read_sessions_seen").on(t.lastSeenAt),
+    index("idx_read_sessions_text_seen").on(t.textId, t.lastSeenAt),
   ],
 );
